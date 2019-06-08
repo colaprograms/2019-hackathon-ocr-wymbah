@@ -193,7 +193,8 @@ def cleanup(image, dontclip=False):
   mediany = __median(image, 0)
   medianx = __median(image, 1)
   "If the median is less than image.shape[1] / 2, then pad on the left"
-  pady = __getpads(mediany, image.shape[0])
+  #pady = __getpads(mediany, image.shape[0])
+  pady = (0, 0)
   padx = __getpads(medianx, image.shape[1])
   image = skimage.util.pad(image, (pady, padx, (0, 0)),
       'constant',
