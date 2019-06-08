@@ -130,7 +130,6 @@ def buffer_to_pil(i):
 
 def __clip(buf):
   grayscale = np.mean(buf, axis=2)
-  print(grayscale.shape)
   flat = np.sort(grayscale.reshape(-1))
   top = flat[int(flat.shape[0] * 0.3)]
   bottom = flat[int(flat.shape[0] * 0.01)]
@@ -158,7 +157,6 @@ def __crop(buf, crop_axis):
       buf = buf[:, CROP_DISTANCE:]
     if b > CROP_WHEN:
       buf = buf[:, :-CROP_DISTANCE]
-  print("axis %d: %f %f" % (crop_axis, a, b))
   return buf
 
 def __median(buf, med_axis):
@@ -189,7 +187,6 @@ def cleanup(image, dontclip=False):
   "If the median is less than image.shape[1] / 2, then pad on the left"
   pady = __getpads(mediany, image.shape[0])
   padx = __getpads(medianx, image.shape[1])
-  print(padx, pady)
   image = skimage.util.pad(image, (pady, padx, (0, 0)),
       'constant',
       constant_values = 1
