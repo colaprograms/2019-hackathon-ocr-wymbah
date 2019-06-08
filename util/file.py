@@ -203,7 +203,7 @@ def cleanup(image, dontclip=False):
   image = __crop_whitespace(image)
   scale = SCALE_IMAGE_TO / image.shape[0]
   image = skimage.transform.resize(image, (SCALE_IMAGE_TO, int(image.shape[1] * scale)))
-  image = __crop(image, 1)
+  #image = __crop(image, 1)
   if image.shape[1] > PAD_HORIZONTALLY_TO:
     raise Exception("image too wide: %d" % image.shape[1])
   pad = (PAD_HORIZONTALLY_TO - image.shape[1]) // 2
