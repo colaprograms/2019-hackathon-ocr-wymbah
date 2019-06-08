@@ -176,8 +176,8 @@ def __getpads(med, dim):
 
 def __crop_whitespace(buf):
   grayscale = np.mean(buf, axis=(0, 2))
-  left = np.argmin(grayscale < 0.9)
-  right = np.argmax(grayscale < 0.9)
+  left = np.argmin(grayscale < 0.99)
+  right = np.argmax(grayscale < 0.99)
   left = max(0, left - 4)
   right = min(grayscale.shape[0], right + 4)
   return buf[:, left:right]
