@@ -1,3 +1,6 @@
+import torch.nn as nn
+import torch.nn.functional as F
+
 '''
 ResNet in PyTorch.
 For Pre-activation ResNet, see 'preact_resnet.py'.
