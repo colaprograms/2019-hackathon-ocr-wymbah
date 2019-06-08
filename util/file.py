@@ -49,18 +49,18 @@ def to_buffer(filename):
   return a.reshape((i.size[1], i.size[0], 3)).astype(np.float64) / 255
 
 class FileHolder:
-  def __init__(self):
-    pass
+  def __init__(self, file="index"):
+    self.file = file
 
-  def _save(self, file="index"):
-    f = open(file, "wb")
+  def _save(self):
+    f = open(self.file, "wb")
     pickle.dump(self.info, f)
 
-  def _load(self, file="index"):
+  def _load(self):
     "Load the index if it's not already loaded."
     if getattr(self, "info", None) is not None:
       return
-    f = open(file, "rb")
+    f = open(self.file, "rb")
     self.info = pickle.load(f)
 
   def make(self):
