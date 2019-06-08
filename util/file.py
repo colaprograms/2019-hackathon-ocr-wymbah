@@ -199,6 +199,6 @@ def cleanup(image, dontclip=False):
       'constant',
       constant_values = 1
   )
-  image = __crop_whitespace(image)
+  #image = __crop_whitespace(image)
   return image
 
