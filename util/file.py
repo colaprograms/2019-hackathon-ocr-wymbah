@@ -1,7 +1,7 @@
 import os, random, pickle, re
 
-#TRAINING_PATH = "/content/AI4Good---Meza-OCR-Challenge"
-TRAINING_PATH = "../AI4Good---Meza-OCR-Challenge"
+TRAINING_PATH = "/content/AI4Good---Meza-OCR-Challenge"
+#TRAINING_PATH = "../AI4Good---Meza-OCR-Challenge"
 
 def my(*f):
   return os.path.join(PATH, *f)
