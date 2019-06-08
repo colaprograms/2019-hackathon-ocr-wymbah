@@ -100,7 +100,16 @@ class FileHolder:
     fh = FileHolder()
     fh.make()
 
-def to_buffer(filename):
+def to_buffer(filename, height=None):
   i = PIL.Image.open(filename)
+  if height is not None:
+    scale = 128 / i.size[1]
+    i = i.resize((int(i.size[0] * scale), 128), resample=PIL.Image.BICUBIC)
+  return pil_to_buffer(i)
+
+def pil_to_buffer(i):
   a = np.array(i.getdata())
-  return a.reshape((i.size[1], i.size[0], 3)).astype(np.float64) / 255
+  return a.reshape((i.size[1], i.size[0], 3)).astype(np.float64)
+
+def buffer_to_pil(i):
+  return PIL.Image.fromarray(i, 'RGB')
