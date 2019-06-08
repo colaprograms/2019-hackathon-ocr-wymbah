@@ -1,4 +1,6 @@
 import os, random, pickle, re
+import numpy as np
+import PIL
 
 TRAINING_PATH_POSSIBILITIES = [
   "/content/AI4Good---Meza-OCR-Challenge",
@@ -97,3 +99,8 @@ class FileHolder:
   def rebuild():
     fh = FileHolder()
     fh.make()
+
+def to_buffer(filename):
+  i = PIL.Image.open(filename)
+  a = np.array(i.getdata())
+  return a.reshape((i.size[1], i.size[0], 3)).astype(np.float64) / 255
