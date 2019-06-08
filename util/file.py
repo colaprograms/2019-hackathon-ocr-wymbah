@@ -183,14 +183,13 @@ def __crop_whitespace(buf):
   return buf[:, left:right, :]
 
 SCALE_IMAGE_TO = 128
-PAD_HORIZONTALLY_TO = 384
+PAD_HORIZONTALLY_TO = 512
 
 def cleanup(image, dontclip=False):
   if not dontclip:
     image = __clip(image)
   oldimage = image
-  image = __crop(image, 0)
-  image = __crop(image, 1)
+  #image = __crop(image, 0)
   mediany = __median(image, 0)
   medianx = __median(image, 1)
   "If the median is less than image.shape[1] / 2, then pad on the left"
@@ -203,6 +202,7 @@ def cleanup(image, dontclip=False):
   image = __crop_whitespace(image)
   scale = SCALE_IMAGE_TO / image.shape[0]
   image = skimage.transform.resize(image, (SCALE_IMAGE_TO, int(image.shape[1] * scale)))
+  image = __crop(image, 1)
   if image.shape[1] > PAD_HORIZONTALLY_TO:
     raise Exception("image too wide: %d" % image.shape[1])
   pad = (PAD_HORIZONTALLY_TO - image.shape[1]) // 2
