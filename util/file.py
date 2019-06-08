@@ -206,8 +206,9 @@ def cleanup(image, dontclip=False):
   #image = __crop(image, 1)
   if image.shape[1] > PAD_HORIZONTALLY_TO:
     raise Exception("image too wide: %d" % image.shape[1])
-  pad = (PAD_HORIZONTALLY_TO - image.shape[1]) // 2
-  image = skimage.util.pad(image, ((0, 0), (PAD_HORIZONTALLY_TO - image.shape[1] - pad, pad), (0, 0)),
+  room = PAD_HORIZONTALLY_TO - image.shape[1]
+  pad = random.randint(0, room - 1)
+  image = skimage.util.pad(image, ((0, 0), (pad, room - pad), (0, 0)),
     'constant', constant_values = 1)
   return image
 
