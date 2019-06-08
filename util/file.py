@@ -1,7 +1,24 @@
 import os, random, pickle, re
 
-TRAINING_PATH = "/content/AI4Good---Meza-OCR-Challenge"
-#TRAINING_PATH = "../AI4Good---Meza-OCR-Challenge"
+TRAINING_PATH_POSSIBILITIES = [
+  "/content/AI4Good---Meza-OCR-Challenge",
+  "../AI4Good---Meza-OCR-Challenge"
+]
+
+TRAINING_PATH = None
+for tp in TRAINING_PATH_POSSIBILITIES:
+  if os.path.exists(tp):
+    print("Using path", tp)
+    TRAINING_PATH = tp
+    break
+
+if TRAINING_PATH is None:
+  print("Couldn't find the data set anywhere.")
+  print("")
+  print("Possible paths:")
+  for tp in TRAINING_PATH_POSSIBILITIES:
+    print("  " + tp)
+  print("Or add a new path to util/file.py.")
 
 def my(*f):
   return os.path.join(PATH, *f)
