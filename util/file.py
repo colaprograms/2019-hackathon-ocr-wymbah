@@ -1,6 +1,6 @@
 import os, random, pickle, re
 import numpy as np
-import PIL
+import PIL, skimage
 
 TRAINING_PATH_POSSIBILITIES = [
   "/content/AI4Good---Meza-OCR-Challenge",
@@ -26,9 +26,9 @@ def my(*f):
   return os.path.join(PATH, *f)
 def data_file(*f):
   return os.path.join(TRAINING_PATH, "cell_images", *f)
-def train_file(*f):
+def labeled_file(*f):
   return data_file("training_set", *f)
-def valid_file(*f):
+def unlabeled_file(*f):
   return data_file("validation_set", *f)
 
 def parse(*filename):
@@ -95,6 +95,20 @@ class FileHolder:
     self._load()
     return random.choice(self.info['validation'])
 
+  def get_batch(self, m, validation=False):
+    inputs = []
+    outputs = []
+    if validation:
+      fn = self.random_validation
+    else:
+      fn = self.random_training
+    for i in range(m):
+      file, val = fn()
+      image = to_buffer(labeled_file(file))
+      inputs.append(cleanup(image))
+      outputs.append(val)
+    return inputs, outputs
+
   @staticmethod
   def rebuild():
     fh = FileHolder()
@@ -113,3 +127,72 @@ def pil_to_buffer(i):
 
 def buffer_to_pil(i):
   return PIL.Image.fromarray(i, 'RGB')
+
+def __clip(buf):
+  grayscale = np.mean(buf, axis=2)
+  print(grayscale.shape)
+  flat = np.sort(grayscale.reshape(-1))
+  top = flat[int(flat.shape[0] * 0.3)]
+  bottom = flat[int(flat.shape[0] * 0.01)]
+  buf = (buf - bottom) / (top - bottom)
+  buf = np.clip(buf, 0, 1)
+  return buf
+
+def __crop(buf, crop_axis):
+  assert crop_axis == 0 or crop_axis == 1
+  CROP_DISTANCE = 10
+  CROP_WHEN = 100
+  "buf is close to 0 where there is ink"
+  ink = 1 - buf
+  if crop_axis == 0:
+    a = np.sum(ink[:, :CROP_DISTANCE])
+    b = np.sum(ink[:, -CROP_DISTANCE:])
+    if a > CROP_WHEN:
+      buf = buf[CROP_DISTANCE:, :]
+    if b > CROP_WHEN:
+      buf = buf[:-CROP_DISTANCE, :]
+  else:
+    a = np.sum(ink[:CROP_DISTANCE, :])
+    b = np.sum(ink[-CROP_DISTANCE:, :])
+    if a > CROP_WHEN:
+      buf = buf[:, CROP_DISTANCE:]
+    if b > CROP_WHEN:
+      buf = buf[:, :-CROP_DISTANCE]
+  print("axis %d: %f %f" % (crop_axis, a, b))
+  return buf
+
+def __median(buf, med_axis):
+  assert med_axis == 0 or med_axis == 1
+  buf = np.mean(buf, axis=2)
+  buf = np.sum(1 - buf, axis = 1 - med_axis)
+  total = np.cumsum(buf)
+  total /= total[-1]
+  return np.argmax(total > 0.5)
+
+def __getpads(med, dim):
+  from math import floor
+  if med < dim / 2:
+    return floor(dim - 2 * med), 0
+  else:
+    return 0, floor(2 * med - dim)
+
+def cleanup(image, dontclip=False):
+  if not dontclip:
+    image = __clip(image)
+  scale = 128 / image.shape[0]
+  image = skimage.transform.resize(image, (128, int(image.shape[1] * scale)))
+  oldimage = image
+  image = __crop(image, 0)
+  image = __crop(image, 1)
+  mediany = __median(image, 0)
+  medianx = __median(image, 1)
+  "If the median is less than image.shape[1] / 2, then pad on the left"
+  pady = __getpads(mediany, image.shape[0])
+  padx = __getpads(medianx, image.shape[1])
+  print(padx, pady)
+  image = skimage.util.pad(image, (pady, padx, (0, 0)),
+      'constant',
+      constant_values = 1
+  )
+  return image
+
