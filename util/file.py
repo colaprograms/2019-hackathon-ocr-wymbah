@@ -203,6 +203,7 @@ def cleanup(image, dontclip=False):
   if image.shape[1] > 512:
     raise Exception("image too wide: %d" % image.shape[1])
   pad = (512 - image.shape[1]) // 2
-  image = skimage.util.pad(image, ((0, 0), (512 - pad, pad), (0, 0)), 'constant', constant_values = 1)
+  image = skimage.util.pad(image, ((0, 0), (512 - image.shape[1] - pad, pad), (0, 0)),
+    'constant', constant_values = 1)
   return image
 
