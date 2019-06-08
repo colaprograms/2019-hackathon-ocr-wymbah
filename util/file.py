@@ -182,6 +182,9 @@ def __crop_whitespace(buf):
   right = min(grayscale.shape[0], right + 32)
   return buf[:, left:right, :]
 
+SCALE_IMAGE_TO = 128
+PAD_HORIZONTALLY_TO = 384
+
 def cleanup(image, dontclip=False):
   if not dontclip:
     image = __clip(image)
@@ -198,12 +201,12 @@ def cleanup(image, dontclip=False):
       constant_values = 1
   )
   image = __crop_whitespace(image)
-  scale = 128 / image.shape[0]
-  image = skimage.transform.resize(image, (128, int(image.shape[1] * scale)))
-  if image.shape[1] > 512:
+  scale = SCALE_IMAGE_TO / image.shape[0]
+  image = skimage.transform.resize(image, (SCALE_IMAGE_TO, int(image.shape[1] * scale)))
+  if image.shape[1] > PAD_HORIZONTALLY_TO:
     raise Exception("image too wide: %d" % image.shape[1])
-  pad = (512 - image.shape[1]) // 2
-  image = skimage.util.pad(image, ((0, 0), (512 - image.shape[1] - pad, pad), (0, 0)),
+  pad = (PAD_HORIZONTALLY_TO - image.shape[1]) // 2
+  image = skimage.util.pad(image, ((0, 0), (PAD_HORIZONTALLY_TO - image.shape[1] - pad, pad), (0, 0)),
     'constant', constant_values = 1)
   return image
 
