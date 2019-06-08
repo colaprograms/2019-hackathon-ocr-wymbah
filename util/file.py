@@ -182,8 +182,8 @@ def __crop_whitespace(buf):
   right = min(grayscale.shape[0], right + 32)
   return buf[:, left:right, :]
 
-SCALE_IMAGE_TO = 128
-PAD_HORIZONTALLY_TO = 512
+SCALE_IMAGE_TO = 64
+PAD_HORIZONTALLY_TO = 256
 
 def cleanup(image, dontclip=False):
   if not dontclip:
