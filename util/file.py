@@ -140,19 +140,19 @@ def __clip(buf):
 def __crop(buf, crop_axis):
   assert crop_axis == 0 or crop_axis == 1
   CROP_DISTANCE = 10
-  CROP_WHEN = 100
+  CROP_WHEN = 10/128
   "buf is close to 0 where there is ink"
   ink = 1 - buf
   if crop_axis == 0:
-    a = np.sum(ink[:, :CROP_DISTANCE])
-    b = np.sum(ink[:, -CROP_DISTANCE:])
+    a = np.mean(ink[:, :CROP_DISTANCE])
+    b = np.mean(ink[:, -CROP_DISTANCE:])
     if a > CROP_WHEN:
       buf = buf[CROP_DISTANCE:, :]
     if b > CROP_WHEN:
       buf = buf[:-CROP_DISTANCE, :]
   else:
-    a = np.sum(ink[:CROP_DISTANCE, :])
-    b = np.sum(ink[-CROP_DISTANCE:, :])
+    a = np.mean(ink[:CROP_DISTANCE, :])
+    b = np.mean(ink[-CROP_DISTANCE:, :])
     if a > CROP_WHEN:
       buf = buf[:, CROP_DISTANCE:]
     if b > CROP_WHEN:
@@ -185,8 +185,6 @@ def __crop_whitespace(buf):
 def cleanup(image, dontclip=False):
   if not dontclip:
     image = __clip(image)
-  scale = 128 / image.shape[0]
-  image = skimage.transform.resize(image, (128, int(image.shape[1] * scale)))
   oldimage = image
   image = __crop(image, 0)
   image = __crop(image, 1)
@@ -200,5 +198,11 @@ def cleanup(image, dontclip=False):
       constant_values = 1
   )
   image = __crop_whitespace(image)
+  scale = 128 / image.shape[0]
+  image = skimage.transform.resize(image, (128, int(image.shape[1] * scale)))
+  if image.shape[1] > 512:
+    raise Exception("image too wide: %d" % image.shape[1])
+  pad = (512 - image.shape[1]) // 2
+  image = skimage.util.pad(image, ((0, 0), (512 - pad, pad), (0, 0)), 'constant', constant_values = 1)
   return image
 
