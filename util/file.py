@@ -176,11 +176,11 @@ def __getpads(med, dim):
 
 def __crop_whitespace(buf):
   grayscale = np.mean(buf, axis=(0, 2))
-  left = np.argmin(grayscale < 0.99)
-  right = np.argmax(grayscale < 0.99)
-  left = max(0, left - 4)
-  right = min(grayscale.shape[0], right + 4)
-  return buf[:, left:right]
+  left = np.argmax(grayscale < 0.99)
+  right = grayscale.shape[0] - np.argmax(grayscale[::-1] < 0.99) - 1
+  left = max(0, left - 32)
+  right = min(grayscale.shape[0], right + 32)
+  return buf[:, left:right, :]
 
 def cleanup(image, dontclip=False):
   if not dontclip:
@@ -199,6 +199,6 @@ def cleanup(image, dontclip=False):
       'constant',
       constant_values = 1
   )
-  #image = __crop_whitespace(image)
+  image = __crop_whitespace(image)
   return image
 
