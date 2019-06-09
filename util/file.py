@@ -134,7 +134,7 @@ def __clip(buf):
   top = flat[int(flat.shape[0] * 0.3)]
   bottom = flat[int(flat.shape[0] * 0.01)]
   buf = (buf - bottom) / (top - bottom)
-  buf = np.clip(buf, 0, 1)
+  #buf = np.clip(buf, 0, 1)
   return buf
 
 def __crop(buf, crop_axis):
