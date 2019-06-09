@@ -128,13 +128,14 @@ def pil_to_buffer(i):
 def buffer_to_pil(i):
   return PIL.Image.fromarray(i, 'RGB')
 
-def __clip(buf):
+def __rescale_by_histogram(buf, clip=False):
   grayscale = np.mean(buf, axis=2)
   flat = np.sort(grayscale.reshape(-1))
   top = flat[int(flat.shape[0] * 0.3)]
   bottom = flat[int(flat.shape[0] * 0.01)]
   buf = (buf - bottom) / (top - bottom)
-  #buf = np.clip(buf, 0, 1)
+  if clip:
+      buf = np.clip(buf, 0, 1)
   return buf
 
 def __crop(buf, crop_axis):
@@ -186,8 +187,7 @@ SCALE_IMAGE_TO = 64
 PAD_HORIZONTALLY_TO = 256
 
 def cleanup(image, dontclip=False):
-  if not dontclip:
-    image = __clip(image)
+  image = __rescale_by_histogram(image, not dontclip)
   oldimage = image
   #image = __crop(image, 0)
   mediany = __median(image, 0)
