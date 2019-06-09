@@ -186,7 +186,7 @@ def __crop_whitespace(buf):
 SCALE_IMAGE_TO = 64
 PAD_HORIZONTALLY_TO = 256
 
-def cleanup(image, dontclip=True):
+def cleanup(image, dontclip=False):
   image = __rescale_by_histogram(image, not dontclip)
   oldimage = image
   #image = __crop(image, 0)
