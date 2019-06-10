@@ -135,7 +135,7 @@ def __rescale_by_histogram(buf, clip=False):
   bottom = flat[int(flat.shape[0] * 0.01)]
   buf = (buf - bottom) / (top - bottom)
   if clip:
-      buf = np.clip(buf, 0, 1)
+      buf = np.minimum(buf, 1) #buf = np.clip(buf, 0, 1)
   return buf
 
 def __crop(buf, crop_axis):
