@@ -95,7 +95,7 @@ class FileHolder:
     self._load()
     return random.choice(self.info['validation'])
 
-  def get_batch(self, m, validation=False):
+  def get_batch(self, m, validation=False, dontclip=False):
     inputs = []
     outputs = []
     if validation:
@@ -105,7 +105,7 @@ class FileHolder:
     for i in range(m):
       file, val = fn()
       image = to_buffer(labeled_file(file))
-      inputs.append(cleanup(image))
+      inputs.append(cleanup(image, dontclip))
       outputs.append(val)
     return inputs, outputs
 
