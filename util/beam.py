@@ -45,6 +45,8 @@ class BeamSearch:
         self.curbeams = {(0,): beam((0,), 0)}
 
     def add_logit(self, p):
+        if len(self.curbeams) > self.nbeams:
+            self.prune()
         self.oldbeams = self.curbeams
         self.curbeams = {}
         for beam in self.oldbeams.values():
@@ -69,7 +71,14 @@ class BeamSearch:
                     else:
                         self.beam(prefix + (i,)) << P[i]
         self.oldbeams = None
-        self.prune()
+
+    def result(self):
+        def combine_entries_with_spaces():
+            for beam in [z for z in self.curbeams.values() if z.prefix[-1] == 0]:
+                self.beam(prefix[:-1]) << beam.p
+                del self.curbeams[beam.prefix]
+        combine_entries_with_spaces()
+        return self.topbeams()
 
     def topbeams(self, nbeams=None):
         beamlist = list(self.curbeams.keys())
