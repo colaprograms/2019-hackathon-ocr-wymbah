@@ -1,6 +1,7 @@
 import os, random, pickle, re
 import numpy as np
 import PIL, skimage
+import torch
 
 TRAINING_PATH_POSSIBILITIES = [
   "/content/AI4Good---Meza-OCR-Challenge",
@@ -10,7 +11,7 @@ TRAINING_PATH_POSSIBILITIES = [
 TRAINING_PATH = None
 for tp in TRAINING_PATH_POSSIBILITIES:
   if os.path.exists(tp):
-    print("Using path", tp)
+    print("Using images in", tp)
     TRAINING_PATH = tp
     break
 
@@ -60,7 +61,7 @@ class FileHolder:
 
   def _load(self):
     "Load the index if it's not already loaded."
-    if getattr(self, "info", None) is not None:
+    if getattr(self, "info", None):
       return
     f = open(self.file, "rb")
     self.info = pickle.load(f)
@@ -76,6 +77,14 @@ class FileHolder:
       'validation': self.labeled_items[split:]
     }
     self.save()
+
+  def ntraining(self):
+    self._load()
+    return len(self.info['training'])
+
+  def nvalidation(self):
+    self._load()
+    return len(self.info['validation'])
 
   def random_training(self):
     """Picks a random training example and returns the filename and value.
@@ -105,10 +114,15 @@ class FileHolder:
     for i in range(m):
       file, val = fn()
       image = to_buffer(labeled_file(file))
-      inputs.append(cleanup(image, dontclip))
+      inputs.append(cleanup(image, dontclip, augment=not validation))
       outputs.append(val)
     return inputs, outputs
 
+  def get_batch_tensor(self, m, validation=False, dontclip=False):
+    inputs, outputs = self.get_batch(m, validation, dontclip)
+    inputs = np.stack(inputs)
+    return torch.tensor(inputs, dtype=torch.float32).permute(0, 3, 1, 2), outputs # batch, channels, height, width
+  
   @staticmethod
   def rebuild():
     fh = FileHolder()
@@ -183,12 +197,28 @@ def __crop_whitespace(buf):
   right = min(grayscale.shape[0], right + 32)
   return buf[:, left:right, :]
 
+def final_contrast(image):
+  #buf -= 0.5
+  #buf *= 2
+  #buf -= np.min(buf, axis=(0, 1, 2))[None, None, None, :]
+  #buf /= np.max(buf, axis=(0, 1, 2))[None, None, None, :]
+  #buf = (buf - 0.5) * 2
+  image -= np.mean(image, axis=(0, 1))[None, None, :]
+  image /= np.std(image, axis=(0, 1))[None, None, :] * 2
+  #buf -= np.array([0.485, 0.456, 0.406])[None, None, None, :]
+  #buf /= np.array([0.229, 0.224, 0.225])[None, None, None, :]
+  return image
+
 SCALE_IMAGE_TO = 64
 PAD_HORIZONTALLY_TO = 256
 
-def cleanup(image, dontclip=False):
+def cleanup(image, dontclip=False, augment=True):
   image = __rescale_by_histogram(image, not dontclip)
   oldimage = image
+  image = __crop_whitespace(image)
+  if augment:
+    image = skimage.transform.rotate(image, random.random()*20 - 10, resize=True, mode="constant", cval=1.0)
+    image = skimage.transform.rescale(image, (1, random.random()*0.2 + 0.9), mode="constant", cval=1.0)
   #image = __crop(image, 0)
   mediany = __median(image, 0)
   medianx = __median(image, 1)
@@ -203,6 +233,14 @@ def cleanup(image, dontclip=False):
   image = __crop_whitespace(image)
   scale = SCALE_IMAGE_TO / image.shape[0]
   image = skimage.transform.resize(image, (SCALE_IMAGE_TO, int(image.shape[1] * scale)))
+  if augment:
+    # horizontal skew
+    # add a little space so that the skew doesn't destroy digits
+    image = skimage.util.pad(image, ((0, 0), (6, 6), (0, 0)), 'constant', constant_values = 1.0)
+    skew = np.array([[1, random.random() * 1 - 0.5, 0],
+                     [0,                         1, 0],
+                     [0,                         0, 1]])
+    image = skimage.transform.warp(image, skew, mode='constant', cval=1.0)
   #image = __crop(image, 1)
   if image.shape[1] > PAD_HORIZONTALLY_TO:
     raise Exception("image too wide: %d" % image.shape[1])
@@ -210,5 +248,6 @@ def cleanup(image, dontclip=False):
   pad = random.randint(0, room - 1)
   image = skimage.util.pad(image, ((0, 0), (pad, room - pad), (0, 0)),
     'constant', constant_values = 1)
+  image = final_contrast(image)
   return image
 
