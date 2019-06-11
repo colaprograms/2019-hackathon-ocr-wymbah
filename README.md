@@ -6,3 +6,5 @@ Try out the notebooks!
 * [beamtst.ipynb](https://github.com/colaprograms/2019-hackathon-ocr-wymbah/blob/master/notebooks/beamtst.ipynb) shows you how to use it.
 
 The repo comes with a couple of trained models already, as you can see in the second notebook `beamtst.ipynb`.
+
+NOTE: This is not the code that we submitted in the hackathon. That is here. [mila-ctc-ocr](https://bitbucket.org/gro-tekcubtib/mila-ctc-ocr/src/master/) This is the codebase that I was building but couldn't get to work during the hackathon.
