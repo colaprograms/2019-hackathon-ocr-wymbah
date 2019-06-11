@@ -9,6 +9,6 @@ Try out the notebooks!
 
 The repo comes with a couple of trained models already, as you can see in the second notebook `beamtst.ipynb`.
 
-NOTE: This is not the code that we submitted in the hackathon. That is here: (https://bitbucket.org/gro-tekcubtib/mila-ctc-ocr/src/master/)
+**NOTE**: This is not the code that we submitted in the hackathon. This is the codebase that I was building, which took an extra day to debug.
 
-This is the codebase that I was building, which took an extra day to debug.
+The hackathon code is here: https://bitbucket.org/gro-tekcubtib/mila-ctc-ocr/src/master/
