@@ -1,3 +1,5 @@
+### An OCR for small pictures with a restricted set of symbols
+
 An OCR program for small handwritten numbers like 135.8 or 4,2. The pictures come from [AI4Good---Meza-OCR-Challenge](https://github.com/Charitable-Analytics-International/AI4Good---Meza-OCR-Challenge).
 
 Try out the notebooks!
@@ -7,4 +9,6 @@ Try out the notebooks!
 
 The repo comes with a couple of trained models already, as you can see in the second notebook `beamtst.ipynb`.
 
-NOTE: This is not the code that we submitted in the hackathon. That is here. [mila-ctc-ocr](https://bitbucket.org/gro-tekcubtib/mila-ctc-ocr/src/master/) This is the codebase that I was building, which took an extra day to debug.
+NOTE: This is not the code that we submitted in the hackathon. That is here: (https://bitbucket.org/gro-tekcubtib/mila-ctc-ocr/src/master/)
+
+This is the codebase that I was building, which took an extra day to debug.
