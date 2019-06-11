@@ -2,6 +2,8 @@ from nets.ctcnet import CTCModel
 from util.beam import beamsearcher
 from util.file import FileHolder, labeled_file, file_list_to_tensor
 import matplotlib.pyplot as p
+import torch
+import numpy as np
 
 CHECKPOINTS = [
     "checkpoint-0049-0.49-CTCModel",
