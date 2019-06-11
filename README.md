@@ -1,6 +1,6 @@
 ### An OCR for small pictures with a restricted set of symbols
 
-An OCR program for small handwritten numbers like 135.8 or 4,2. The pictures come from [AI4Good---Meza-OCR-Challenge](https://github.com/Charitable-Analytics-International/AI4Good---Meza-OCR-Challenge).
+An OCR program for small handwritten numbers like 135.8 or 4,2. The pictures come from [AI4Good---Meza-OCR-Challenge](https://github.com/Charitable-Analytics-International/AI4Good---Meza-OCR-Challenge). We use CNN-RNN-CTC with Resnet-34 and a single bidirectional LSTM.
 
 Try out the notebooks!
 
