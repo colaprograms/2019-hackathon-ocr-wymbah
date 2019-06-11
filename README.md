@@ -2,5 +2,5 @@ An OCR program for small handwritten numbers like 135.8 or 4,2 that Meza gets fr
 
 Try out the notebooks!
 
-* `https://github.com/colaprograms/2019-hackathon-ocr-wymbah/blob/master/notebooks/training.ipynb` trains a model.
-* `https://github.com/colaprograms/2019-hackathon-ocr-wymbah/blob/master/notebooks/beamtst.ipynb` is an example of use
+* [https://github.com/colaprograms/2019-hackathon-ocr-wymbah/blob/master/notebooks/training.ipynb] trains a model.
+* [https://github.com/colaprograms/2019-hackathon-ocr-wymbah/blob/master/notebooks/beamtst.ipynb] shows you how to use it.
