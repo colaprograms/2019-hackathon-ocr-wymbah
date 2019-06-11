@@ -1,4 +1,4 @@
-An OCR program for small handwritten numbers like 135.8 or 4,2 that Meza gets from its medical records app.
+An OCR program for small handwritten numbers like 135.8 or 4,2.
 
 Try out the notebooks!
 
