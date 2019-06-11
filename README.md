@@ -1,4 +1,4 @@
-An OCR program for small handwritten numbers like 135.8 or 4,2.
+An OCR program for small handwritten numbers like 135.8 or 4,2. See https://github.com/Charitable-Analytics-International/AI4Good---Meza-OCR-Challenge.
 
 Try out the notebooks!
 
