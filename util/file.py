@@ -118,15 +118,39 @@ class FileHolder:
       outputs.append(val)
     return inputs, outputs
 
+  def files_to_tensor(self, fn):
+    inputs = []
+    for i in range(len(fn)):
+      image = to_buffer(fn)
+      inputs.append(cleanup(image, dontclip, False))
+    inputs = np.stack(inputs)
+    return inputs
+
   def get_batch_tensor(self, m, validation=False, dontclip=False):
     inputs, outputs = self.get_batch(m, validation, dontclip)
-    inputs = np.stack(inputs)
-    return torch.tensor(inputs, dtype=torch.float32).permute(0, 3, 1, 2), outputs # batch, channels, height, width
-  
+    return tensorize(inputs), outputs
+
   @staticmethod
   def rebuild():
     fh = FileHolder()
     fh.make()
+
+def file_list_to_tensor(filenames):
+  inputs = []
+  for filename in filenames:
+      image = to_buffer(filename)
+      inputs.append(cleanup(image, False, False))
+  return tensorize(inputs)
+
+def tensorize(im):
+  """Convert a list of image buffers of shape (height, width, channels) to a
+  torch.Tensor of shape (batch, channels, width, height)."""
+  # input: batch, height, width, channels
+  # output: batch, channels, height, width
+  for image in im[1:]:
+    assert image.shape == im[0].shape
+  im = np.stack(im)
+  return torch.tensor(im, dtype=torch.float32).permute(0, 3, 1, 2)
 
 def to_buffer(filename, height=None):
   i = PIL.Image.open(filename)

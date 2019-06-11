@@ -7,6 +7,11 @@ idx = {}
 for i, c in enumerate(chars): idx[c] = i
 
 def input_to_string(inp):
+    """Converts normalized logits to a string just by picking a random symbol
+    according to the distribution of the logits for each time sequence.
+    This kind of helps understand how training is going.
+
+    DO NOT USE for prediction. Use the beam search as in beamtst.ipynb"""
     assert inp.shape[0] == 1
     if isinstance(inp, torch.Tensor):
         inp = inp.clone().detach().cpu().numpy()
