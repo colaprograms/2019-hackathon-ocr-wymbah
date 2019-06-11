@@ -1,6 +1,6 @@
-from nets.ctcnet import *
-from util.beam import BeamSearch
-from util.file import FileHolder
+from nets.ctcnet import CTCModel
+from util.beam import beamsearcher
+from util.file import FileHolder, labeled_file, file_list_to_tensor
 import matplotlib.pyplot as p
 
 CHECKPOINTS = [
@@ -23,30 +23,50 @@ class Test:
         self.fh = FileHolder()
         self.quiet = quiet
 
-    def getone(self):
-        inputs, outputs = self.fh.get_batch_tensor(1, validation=True)
+    def test(self):
+        count = 0
+        nimages = self.fh.nvalidation()
+        print("Testing", nimages, "images")
+        BATCHSIZE = 64
+        for j in range(0, nimages, BATCHSIZE):
+            paths = []
+            outputs = []
+            for filename, val in self.fh.info['validation'][j:j+BATCHSIZE]:
+                path = labeled_file(filename)
+                paths += [path]
+                outputs.append(val)
+            inputs = file_list_to_tensor(paths)
+
+            logits = self.model(inputs)
+            logits = logits.detach().cpu().numpy()
+            for i in range(len(outputs)):
+                answer = beamsearcher(logits[i, :, :], 8)
+                if answer[0].str() != outputs[i]:
+                    if not self.quiet:
+                        print("%s image was wrong!" % nth(j + i))
+                        print("answer", answer[0].str())
+                        print("correct:", outputs[i])
+                        print("top 3 guesses:", [z.str() for z in answer[:3]])
+                        print("image:")
+                        show(inputs[i, :, :, :])
+                else:
+                    count+=1
+            i = j + len(outputs)
+            print("Tested %3d/%d. %.2f%% correct" % (i, nimages, count/i*100))
+        return count, nimages
+
+    def classify_files(self, paths):
+        inputs = file_list_to_tensor(paths)
         logits = self.model(inputs)
         logits = logits.detach().cpu().numpy()
-        return inputs, outputs, logits
+        return inputs, beamsearcher(logits, 8)
 
-    def test(self, m):
-        def fn(j):
-            inputs, outputs, logits = self.getone()
-            answer = beam(logits, 8)
-            if answer[0].str() != outputs[0]:
-                if not self.quiet:
-                    print("%s image was wrong!" % nth(j))
-                    print("answer", answer[0].str())
-                    print("correct:", outputs)
-                    print("top 3 guesses:", [z.str() for z in answer[:3]])
-                    print("image:")
-                    show(inputs)
-                return 0
-            else:
-                return 1
-        #count = sum(fn(j) for j in range(m)) / m
-        count = sum(fn(j) for j in range(m))
-        return count
+    def decode_one_image(self, filename):
+        inputs, answer = self.classify_files([filename])
+        print("Answer:", answer[0].str())
+        print("Top 3 guesses:", [str(z) for z in answer[:3]])
+        print("Image:")
+        show(inputs[0, :, :, :])
 
 SUFFIX = ["th", "st", "nd", "rd"] + ["th"] * 6
 def nth(j):
@@ -56,19 +76,6 @@ def nth(j):
         suffix = "th"
     return "%d%s" % (j, suffix)
 
-def beam(logits, nbeams):
-    """Do a beam search on the logits.
-
-    Logits should be shape (1, length, nchars)"""
-    beas = BeamSearch(nbeams)
-    for j in range(logits.shape[1]):
-        beas.add_logit(logits[0, j, :])
-    return beas.topbeams()
-
-def test(m, quiet=False):
-    count = Test(CHECKPOINTS[0], quiet).test(m)
-    return "Total correct: %.2f%% (%d/%d)" % (count / m * 100, count, m)
-
-def test2(m, quiet=False):
-    count = Test(CHECKPOINTS[1], quiet).test(m)
+def test(checkpoint, quiet=False):
+    count, m = Test(checkpoint, quiet).test()
     return "Total correct: %.2f%% (%d/%d)" % (count / m * 100, count, m)

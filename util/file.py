@@ -269,7 +269,10 @@ def cleanup(image, dontclip=False, augment=True):
   if image.shape[1] > PAD_HORIZONTALLY_TO:
     raise Exception("image too wide: %d" % image.shape[1])
   room = PAD_HORIZONTALLY_TO - image.shape[1]
-  pad = random.randint(0, room - 1)
+  if augment:
+    pad = random.randint(0, room - 1)
+  else:
+    pad = (room+1) >> 1
   image = skimage.util.pad(image, ((0, 0), (pad, room - pad), (0, 0)),
     'constant', constant_values = 1)
   image = final_contrast(image)

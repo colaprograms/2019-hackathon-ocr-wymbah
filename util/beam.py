@@ -75,7 +75,7 @@ class BeamSearch:
     def result(self):
         def combine_entries_with_spaces():
             for beam in [z for z in self.curbeams.values() if z.prefix[-1] == 0]:
-                self.beam(prefix[:-1]) << beam.p
+                self.beam(beam.prefix[:-1]) << beam.p
                 del self.curbeams[beam.prefix]
         combine_entries_with_spaces()
         return self.topbeams()
@@ -96,3 +96,13 @@ class BeamSearch:
         if prefix not in self.curbeams:
             self.curbeams[prefix] = beam(prefix, -np.inf)
         return self.curbeams[prefix]
+
+def beamsearcher(logits, nbeams):
+    """Do a beam search on the logits.
+    Logits should be shape (length, nchars)"""
+    if len(logits.shape) == 3 and logits.shape[0] == 1:
+        logits = logits.squeeze(0)
+    beas = BeamSearch(nbeams)
+    for j in range(logits.shape[0]):
+        beas.add_logit(logits[j, :])
+    return beas.result()
