@@ -5,7 +5,8 @@ import torch
 
 TRAINING_PATH_POSSIBILITIES = [
   "/content/AI4Good---Meza-OCR-Challenge",
-  "../AI4Good---Meza-OCR-Challenge"
+  "../AI4Good---Meza-OCR-Challenge",
+  "images/"
 ]
 
 TRAINING_PATH = None
