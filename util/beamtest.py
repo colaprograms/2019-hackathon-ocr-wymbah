@@ -7,7 +7,7 @@ import numpy as np
 
 CHECKPOINTS = [
     "checkpoint-0049-0.49-CTCModel",
-    "checkpoint-0046-0.43-CTCModel"
+    "checkpoint-0046-0.43-CTCModel", "checkpoint-0079-0.42-CTCModel"
 ]
 
 def show(inp):
